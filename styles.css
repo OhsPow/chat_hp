@@ -46,6 +46,12 @@ section {
     margin: 0 auto;
 }
 
+.logo {
+    height: 50px; /* ロゴの高さを50pxに調整 */
+    width: auto; /* アスペクト比を保ちながら幅を自動調整 */
+    vertical-align: middle; /* ロゴとリンクを縦方向で中央揃えに */
+}
+
 h2 {
     color: #003366;
     border-bottom: 2px solid #0066CC;
@@ -61,25 +67,4 @@ footer {
     position: relative;
     bottom: 0;
     width: 100%;
-}
-
-.logo {
-    height: 50px; /* ロゴの高さを50pxに調整 */
-    width: auto;  /* アスペクト比を保ちながら幅を自動調整 */
-    vertical-align: middle; /* ロゴとリンクを縦方向で中央揃えに */
-}
-
-nav ul {
-    display: flex;
-    align-items: center;
-}
-
-nav ul li {
-    list-style: none;
-    margin-right: 20px;
-}
-
-nav ul li a {
-    text-decoration: none;
-    color: #fff; /* テーマカラーに合わせたリンク色 */
 }
