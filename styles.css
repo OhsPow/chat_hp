@@ -9,13 +9,13 @@ body {
 
 header {
     background-color: #003366; /* テーマカラー（ダークブルー） */
-    padding: 10px 0;
-    text-align: center;
+    padding: 15px 0; /* ナビゲーションバーを全体的に大きくする */
+    text-align: left; /* ロゴを左寄せに */
 }
 
 nav ul {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start; /* 左寄せ */
     align-items: center;
     list-style: none;
     margin: 0;
@@ -33,7 +33,7 @@ nav ul li:last-child {
 nav ul li a {
     text-decoration: none;
     color: #fff; /* ナビゲーションリンクの色を白に */
-    font-size: 18px;
+    font-size: 20px; /* リンクのフォントサイズを少し大きく */
     padding: 10px;
 }
 
@@ -44,7 +44,7 @@ nav ul li a:hover {
 
 /* ロゴのスタイルを定義 */
 .logo {
-    height: 50px; /* ロゴの高さを50pxに調整 */
+    height: 80px; /* ロゴの高さを80pxにして全体を大きく */
     width: auto;  /* アスペクト比を保ちながら幅を自動調整 */
     vertical-align: middle; /* ロゴとリンクを縦方向で中央揃えに */
 }
