@@ -55,19 +55,19 @@ nav ul li a:hover {
     padding: 100px 0;
 }
 
-#welcome-home {
+#welcome-section {
     text-align: center;
     margin: 50px 0;
     max-width: 800px;
 }
 
-#welcome-home h1 {
+#welcome-section h1 {
     font-size: 2.5rem;
     color: #003366;
     margin: 0 auto 20px auto;
 }
 
-#welcome-home img {
+#welcome-section img {
     max-width: 80%;
     height: auto;
     margin-top: 20px;
