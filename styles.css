@@ -9,7 +9,7 @@ body {
 header {
     background-color: #003366; /* テーマカラー（ダークブルー） */
     padding: 15px 0; /* ナビゲーションバーを大きくする */
-    text-align: left; /* ロゴを左寄せに */
+    text-align: center; /* ロゴを左寄せに */
 }
 
 nav ul {
