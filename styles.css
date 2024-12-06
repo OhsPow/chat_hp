@@ -67,13 +67,10 @@ nav ul li a:hover {
 }
 
 #welcome-home img {
-    max-width: 80%; /* 幅を本文に収める */
-    max-height: 400px; /* 高さの最大値を設定 */
-    width: auto; /* 元画像の比率を維持 */
-    height: auto; /* 元画像の比率を維持 */
+    max-width: 80%;
+    height: auto;
     margin-top: 20px;
-    border-radius: 8px; /* 画像に少し丸みをつける（必要に応じて） */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* ソフトな影を追加（任意） */
+    border-radius: 8px; /* 画像に少し丸みをつける */
 }
 
 section {
