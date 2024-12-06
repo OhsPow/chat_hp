@@ -41,6 +41,30 @@ nav ul li a:hover {
     border-radius: 5px;
 }
 
+@media (max-width: 768px) {
+    nav {
+        justify-content: center; /* ナビゲーションを中央揃え */
+        padding: 15px; /* 余白を少し増やす */
+    }
+
+    nav a {
+        font-size: 0.9rem; /* フォントサイズを調整 */
+        margin: 5px;
+    }
+
+    section {
+        padding: 15px; /* 余白を縮小 */
+    }
+
+    h1 {
+        font-size: 2rem; /* 見出しのフォントサイズを調整 */
+    }
+
+    h2 {
+        font-size: 1.5rem; /* サブ見出しのフォントサイズを調整 */
+    }
+}
+
 /* ロゴのスタイルを定義 */
 .logo {
     height: 80px; /* ロゴの高さを80pxに調整 */
