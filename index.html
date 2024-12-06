@@ -18,6 +18,7 @@
                 <li><a href="publications.html">研究業績</a></li>
                 <li><a href="access.html">アクセス</a></li>
                 <li><a href="news.html">News</a></li>
+                <li><a href="resources.html">資料一覧</a></li>
             </ul>
         </nav>
     </header>
@@ -29,8 +30,46 @@
         </div>
     </section>
 
+ <section id="latest-news">
+    <h2>最新ニュース</h2>
+    <ul id="news-list"></ul>
+    <p><a href="news.html">ニュース一覧を見る</a></p>
+</section>
+
+<script>
+    // ニュースデータを読み込み、最新3件を表示する
+    fetch('news.html')
+        .then(response => response.text())
+        .then(data => {
+            // HTML文字列をDOMとしてパース
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(data, 'text/html');
+
+            // ニュースセクションを取得
+            const articles = doc.querySelectorAll('#all-news article');
+
+            // ニュースデータを配列に変換してソート
+            const newsArray = Array.from(articles).map(article => ({
+                date: article.getAttribute('data-date'),
+                title: article.querySelector('h3').textContent,
+                description: article.querySelector('p')?.textContent || '',
+            })).sort((a, b) => new Date(b.date) - new Date(a.date)); // 日付で降順ソート
+
+            // 最新3件を表示
+            const newsList = document.getElementById('news-list');
+            newsArray.slice(0, 3).forEach(news => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `
+                    <strong>${news.date}</strong> - ${news.title}
+                `;
+                newsList.appendChild(listItem);
+            });
+        })
+        .catch(error => console.error('ニュースデータの取得に失敗しました:', error));
+</script>   
+
     <footer>
-        <p>&copy; 苫小牧高専　電力知能研究室　（大澤拓門）</p>
+        <p>&copy; 苫小牧高専　電力知能研究室</p>
     </footer>
 
 </body>
