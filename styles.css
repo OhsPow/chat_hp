@@ -55,18 +55,18 @@ nav ul li a:hover {
     padding: 100px 0;
 }
 
-#home {
+#welcome-home {
     text-align: center;
     margin: 50px 0;
 }
 
-#home h1 {
+#welcome-home h1 {
     font-size: 2.5rem;
     color: #003366; /* テーマカラー */
     margin-bottom: 20px;
 }
 
-#home img {
+#welcome-home img {
     max-width: 80%;
     height: auto;
     margin-top: 20px;
