@@ -41,6 +41,13 @@ nav ul li a:hover {
     border-radius: 5px;
 }
 
+img {
+    max-width: 100%; /* 画像の幅を親要素内に収める */
+    height: auto;   /* アスペクト比を維持して高さを調整 */
+    display: block; /* 余計な余白を排除（必要に応じて） */
+    margin: 0 auto; /* 中央揃え（必要なら） */
+}
+
 @media (max-width: 768px) {
     nav {
         justify-content: center; /* ナビゲーションを中央揃え */
