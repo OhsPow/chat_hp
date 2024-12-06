@@ -50,13 +50,14 @@ img {
 
 @media (max-width: 768px) {
     nav {
-        justify-content: center; /* ナビゲーションを中央揃え */
-        padding: 15px; /* 余白を少し増やす */
+        flex-direction: column; /* 垂直方向に並べる */
+        align-items: flex-start; /* 左揃え */
+        padding: 10px;
     }
 
     nav a {
-        font-size: 0.9rem; /* フォントサイズを調整 */
-        margin: 5px;
+        font-size: 0.9rem; /* フォントサイズを少し縮小 */
+        margin: 5px 0; /* 縦方向に間隔を確保 */
     }
 
     section {
