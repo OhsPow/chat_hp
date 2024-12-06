@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>資料一覧 - 研究室ホームページ</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="index.html">HOME</a></li>
+                <li><a href="research.html">研究テーマ</a></li>
+                <li><a href="members.html">メンバー</a></li>
+                <li><a href="publications.html">研究業績</a></li>
+                <li><a href="access.html">アクセス</a></li>
+                <li><a href="news.html">News</a></li>
+                <li><a href="resources.html">資料一覧</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section id="resources">
+        <h1>資料一覧</h1>
+        <p>以下のPDF資料を閲覧・ダウンロードできます。</p>
+        <ul>
+            <li><a href="pdfs/sample1.pdf" target="_blank">Sample PDF 1</a></li>
+            <li><a href="pdfs/sample2.pdf" target="_blank">Sample PDF 2</a></li>
+        </ul>
+    </section>
+
+    <footer>
+        <p>&copy; 2024 大澤研究室</p>
+    </footer>
+</body>
+</html>
