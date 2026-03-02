@@ -5,6 +5,8 @@ chatgpt based homepage
 - `docs/update-ui-requirements.md`
 - `docs/update-ui-implementation-plan.md`
 
+
+
 ## Decap CMS 本番化手順
 - `docs/decap-github-pages-setup.md`
 
