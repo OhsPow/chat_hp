@@ -25,28 +25,35 @@
     <section id="all-news">
         <h2>News</h2>
         <p>最新のニュースやイベント情報を掲載します。</p>
-        <!-- 最新ニュースリスト -->
-    <article data-date="2025-03-11">
-        <h3>電気学会の発表賞を受賞しました。</h3>
-        <p>2025-03-11<br>2024年11月の北海道支部大会の発表にて，大澤が「電気学会優秀論文発表賞B賞」を受賞しました。</p>
-    </article>
-    <article data-date="2025-03-06">
-        <h3>電力技術/電力系統技術/半導体電力変換合同研究会にて，研究成果を口頭発表しました。</h3>
-        <p>2025-03-06<br>表題研究会（開催地：沖縄）にて，大澤が発表を行いました。題目は「Extreme Learning Machineを用いた確率潮流計算法の開発」です。</p>
-    </article>
-    <article data-date="2024-12-16">
-        <h3>苫小牧高専地域連携シンポジウム2024にて，研究成果をポスター発表しました。</h3>
-        <p>2024-12-16<br>表題シンポジウムにて，大澤が発表を行いました。題目は「自家消費型太陽光発電システムの最適容量設計」です。<br> 発表データは<a href="resources.html">こちら</a>からご覧いただけます。</p>
-    </article>
-    <article data-date="2024-11-03">
-        <h3>令和6年度 電気・情報関係学会北海道支部連合大会にて，研究成果を口頭発表しました。</h3>
-        <p>2024-11-03<br>表題学会にて，大澤が発表を行いました。題目は「機械学習と直流法を用いた潮流計算に関する基礎検討」です。</p>
-    </article>
-    <article data-date="2024-10-05">
-        <h3>ホームページを公開しました。</h3>
-        <p>2024-10-05<br>ホームページを公開しました。今後も定期的に更新する予定です。</p>
-    </article>
+        <div id="news-container"></div>
     </section>
+
+    <script>
+        fetch('sandbox_v2/content/news.json')
+            .then((response) => response.json())
+            .then((data) => {
+                const container = document.getElementById('news-container');
+                const items = (data.items || [])
+                    .filter((item) => item.status === 'published')
+                    .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                if (!items.length) {
+                    container.innerHTML = '<p>公開中のニュースはありません。</p>';
+                    return;
+                }
+
+                container.innerHTML = items.map((item) => `
+                    <article data-date="${item.date}">
+                        <h3>${item.title}</h3>
+                        <p>${item.date}<br>${item.body || ''}${item.link ? `<br><a href="${item.link}">関連リンク</a>` : ''}</p>
+                    </article>
+                `).join('');
+            })
+            .catch((error) => {
+                console.error('ニュースデータの取得に失敗しました:', error);
+                document.getElementById('news-container').innerHTML = '<p>ニュースの読み込みに失敗しました。</p>';
+            });
+    </script>
 
     <footer>
         <p>&copy; 苫小牧高専　電力知能研究室</p>

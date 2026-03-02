@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sandbox_v2 資料</title>
+  <link rel="stylesheet" href="/sandbox_v2/public/css/style.css" />
+</head>
+<body>
+  <header>
+    <h1>sandbox_v2: 資料</h1>
+    <nav>
+      <a href="/sandbox_v2/public/news.html">News</a>
+      <a href="/sandbox_v2/public/resources.html">資料</a>
+      <a href="/sandbox_v2/public/members.html">メンバー</a>
+      <a href="/sandbox_v2/admin/">管理画面</a>
+    </nav>
+  </header>
+  <main>
+    <div id="list"></div>
+  </main>
+  <script src="/sandbox_v2/public/js/render.js"></script>
+  <script>window.sandboxRenderer.renderResources();</script>
+</body>
+</html>
