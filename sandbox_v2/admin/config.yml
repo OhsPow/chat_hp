@@ -1,10 +1,21 @@
-# Decap CMS config (sandbox)
-# 既存サイトを壊さないため、sandbox_v2 配下だけを操作対象にする
+# Decap CMS config (production-ready template)
+# 使い方:
+# 1) repo / branch / site_url / display_url を実値に変更
+# 2) OAuth認証エンドポイントを用意して base_url / auth_endpoint を設定
+# 3) GitHub Pages 上で /sandbox_v2/admin/ を開く
 
 backend:
   name: github
   repo: YOUR_GITHUB_USER/YOUR_REPO_NAME
   branch: main
+  # OAuth broker (Decap OAuth) 側のURL
+  base_url: https://YOUR_OAUTH_BROKER_DOMAIN
+  auth_endpoint: /auth
+
+site_url: https://YOUR_GITHUB_USER.github.io/YOUR_REPO_NAME
+# display_url は公開URL（ユーザーが見るサイトURL）
+display_url: https://YOUR_GITHUB_USER.github.io/YOUR_REPO_NAME
+locale: "ja"
 
 # 下書き→確認→公開
 publish_mode: editorial_workflow
@@ -12,8 +23,6 @@ publish_mode: editorial_workflow
 # アップロード先（リポジトリ内）
 media_folder: "sandbox_v2/uploads"
 public_folder: "/sandbox_v2/uploads"
-
-locale: "ja"
 
 collections:
   - name: "site_content"

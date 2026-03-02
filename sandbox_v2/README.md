@@ -24,6 +24,16 @@ python3 -m http.server 8000
 # http://localhost:8000/sandbox_v2/admin/
 ```
 
-## GitHub Pages での公開（将来）
-`/sandbox_v2/admin/` を公開し、GitHub OAuth の設定を行うことで
-管理画面として運用できます（`admin/config.yml` の `repo` を実値に設定）。
+## GitHub Pages 本番化（Decap完成手順）
+1. `docs/decap-github-pages-setup.md` の手順で OAuth broker を用意
+2. `sandbox_v2/admin/config.yml` のプレースホルダを実値に置換
+3. 置換は次の補助スクリプトでも可能
+
+```bash
+python3 scripts/prepare_decap_config.py \
+  --repo <user>/<repo> \
+  --site-url https://<user>.github.io/<repo> \
+  --oauth-base-url https://<oauth-broker-domain>
+```
+
+4. `https://<user>.github.io/<repo>/sandbox_v2/admin/` にアクセスし、ログインして編集
