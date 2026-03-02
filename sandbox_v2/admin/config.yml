@@ -1,0 +1,68 @@
+# Decap CMS config (sandbox)
+# 既存サイトを壊さないため、sandbox_v2 配下だけを操作対象にする
+
+backend:
+  name: github
+  repo: YOUR_GITHUB_USER/YOUR_REPO_NAME
+  branch: main
+
+# 下書き→確認→公開
+publish_mode: editorial_workflow
+
+# アップロード先（リポジトリ内）
+media_folder: "sandbox_v2/uploads"
+public_folder: "/sandbox_v2/uploads"
+
+locale: "ja"
+
+collections:
+  - name: "site_content"
+    label: "サイトコンテンツ"
+    files:
+      - label: "News"
+        name: "news"
+        file: "sandbox_v2/content/news.json"
+        fields:
+          - label: "ニュース一覧"
+            name: "items"
+            widget: "list"
+            summary: "{{fields.date}} | {{fields.title}}"
+            fields:
+              - { label: "公開状態", name: "status", widget: "select", options: ["draft", "published"], default: "draft" }
+              - { label: "日付", name: "date", widget: "datetime", format: "YYYY-MM-DD", time_format: false }
+              - { label: "タイトル", name: "title", widget: "string" }
+              - { label: "本文", name: "body", widget: "text" }
+              - { label: "リンク（任意）", name: "link", widget: "string", required: false }
+
+      - label: "資料"
+        name: "resources"
+        file: "sandbox_v2/content/resources.json"
+        fields:
+          - label: "資料一覧"
+            name: "items"
+            widget: "list"
+            summary: "{{fields.date}} | {{fields.title}}"
+            fields:
+              - { label: "公開状態", name: "status", widget: "select", options: ["draft", "published"], default: "draft" }
+              - { label: "公開日", name: "date", widget: "datetime", format: "YYYY-MM-DD", time_format: false }
+              - { label: "タイトル", name: "title", widget: "string" }
+              - { label: "説明（任意）", name: "description", widget: "text", required: false }
+              - { label: "添付ファイル（任意）", name: "file", widget: "file", required: false }
+              - { label: "リンク（任意）", name: "link", widget: "string", required: false }
+
+      - label: "メンバー"
+        name: "members"
+        file: "sandbox_v2/content/members.json"
+        fields:
+          - label: "メンバー一覧"
+            name: "items"
+            widget: "list"
+            summary: "{{fields.order}} | {{fields.name}}"
+            fields:
+              - { label: "公開状態", name: "status", widget: "select", options: ["draft", "published"], default: "draft" }
+              - { label: "表示順", name: "order", widget: "number", default: 100 }
+              - { label: "氏名", name: "name", widget: "string" }
+              - { label: "役職・区分", name: "role", widget: "string" }
+              - { label: "紹介本文（任意）", name: "bio", widget: "text", required: false }
+              - { label: "リンク（任意）", name: "link", widget: "string", required: false }
+              - { label: "画像（任意）", name: "photo", widget: "image", required: false }
