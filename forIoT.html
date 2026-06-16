@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IoT演習 MQTT Viewer</title>
+
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f4f6f8;
+      color: #222;
+    }
+
+    header {
+      background: #1f3a5f;
+      color: white;
+      padding: 16px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    main {
+      padding: 16px;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .panel {
+      background: white;
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      font-size: 18px;
+      padding: 12px;
+      border: 1px solid #bbb;
+      border-radius: 10px;
+      margin-bottom: 12px;
+    }
+
+    button {
+      width: 100%;
+      font-size: 18px;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      background: #1f6feb;
+      margin-top: 6px;
+    }
+
+    button.secondary {
+      background: #6b7280;
+    }
+
+    .status {
+      font-size: 18px;
+      font-weight: bold;
+      padding: 10px;
+      border-radius: 10px;
+      background: #eee;
+      text-align: center;
+    }
+
+    .connected {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .connecting {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .disconnected {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .card {
+      background: #f9fafb;
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+      border: 1px solid #e5e7eb;
+    }
+
+    .card .label {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 8px;
+    }
+
+    .card .value {
+      font-size: 26px;
+      font-weight: bold;
+    }
+
+    .alert {
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+    }
+
+    pre {
+      white-space: pre-wrap;
+      word-break: break-all;
+      background: #111827;
+      color: #e5e7eb;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+
+    .small {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>IoT演習 MQTT Viewer</h1>
+  </header>
+
+  <main>
+    <section class="panel">
+      <label for="groupId">班番号</label>
+      <input id="groupId" value="group01" />
+
+      <label for="brokerUrl">Broker URL</label>
+      <input id="brokerUrl" value="wss://broker.emqx.io:8084/mqtt" />
+
+      <label for="topic">Subscribe topic</label>
+      <input id="topic" value="iot-practice/class01/group01/sensor" />
+
+      <button onclick="connectMqtt()">接続する</button>
+      <button class="secondary" onclick="disconnectMqtt()">切断する</button>
+
+      <p class="small">
+        班番号を変更するとtopicも自動で変更されます。
+        Wokwi側のMQTT_TOPICと完全に一致させてください。
+      </p>
+    </section>
+
+    <section class="panel">
+      <div id="status" class="status disconnected">未接続</div>
+    </section>
+
+    <section class="panel">
+      <h2>受信データ</h2>
+
+      <div class="grid">
+        <div class="card">
+          <div class="label">温度</div>
+          <div class="value"><span id="temperature">--</span> ℃</div>
+        </div>
+
+        <div class="card">
+          <div class="label">湿度</div>
+          <div class="value"><span id="humidity">--</span> %</div>
+        </div>
+
+        <div class="card">
+          <div class="label">人感</div>
+          <div class="value" id="motion">--</div>
+        </div>
+
+        <div class="card">
+          <div class="label">距離</div>
+          <div class="value"><span id="distance">--</span> cm</div>
+        </div>
+
+        <div class="card">
+          <div class="label">明るさ</div>
+          <div class="value" id="light">--</div>
+        </div>
+
+        <div class="card alert">
+          <div class="label">状態</div>
+          <div class="value" id="alertStatus">--</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>最新JSON</h2>
+      <pre id="latestJson">まだ受信していません</pre>
+    </section>
+
+    <section class="panel">
+      <h2>受信ログ</h2>
+      <pre id="log"></pre>
+    </section>
+  </main>
+
+  <script>
+    let client = null;
+
+    const groupInput = document.getElementById("groupId");
+    const topicInput = document.getElementById("topic");
+
+    groupInput.addEventListener("input", () => {
+      const groupId = groupInput.value.trim();
+      topicInput.value = "iot-practice/class01/" + groupId + "/sensor";
+    });
+
+    function setStatus(text, className) {
+      const status = document.getElementById("status");
+      status.textContent = text;
+      status.className = "status " + className;
+    }
+
+    function addLog(text) {
+      const log = document.getElementById("log");
+      const time = new Date().toLocaleTimeString();
+      log.textContent = "[" + time + "] " + text + "\n" + log.textContent;
+    }
+
+    function connectMqtt() {
+      const brokerUrl = document.getElementById("brokerUrl").value.trim();
+      const topic = document.getElementById("topic").value.trim();
+      const groupId = document.getElementById("groupId").value.trim();
+
+      if (!brokerUrl || !topic || !groupId) {
+        alert("班番号、Broker URL、topicを入力してください。");
+        return;
+      }
+
+      if (client) {
+        client.end(true);
+        client = null;
+      }
+
+      setStatus("接続中...", "connecting");
+      addLog("接続開始: " + brokerUrl);
+
+      const clientId =
+        "phone-" +
+        groupId +
+        "-" +
+        Math.random().toString(16).slice(2, 8);
+
+      client = mqtt.connect(brokerUrl, {
+        clientId: clientId,
+        clean: true,
+        connectTimeout: 8000,
+        reconnectPeriod: 3000
+      });
+
+      client.on("connect", () => {
+        setStatus("接続済み", "connected");
+        addLog("接続成功。Client ID: " + clientId);
+
+        client.subscribe(topic, (err) => {
+          if (err) {
+            addLog("subscribe失敗: " + err.message);
+          } else {
+            addLog("subscribe成功: " + topic);
+          }
+        });
+      });
+
+      client.on("message", (topic, message) => {
+        const text = message.toString();
+        addLog("受信: " + text);
+        document.getElementById("latestJson").textContent = text;
+
+        try {
+          const data = JSON.parse(text);
+          updateDisplay(data);
+        } catch (e) {
+          addLog("JSONとして読めませんでした。");
+        }
+      });
+
+      client.on("error", (err) => {
+        setStatus("エラー", "disconnected");
+        addLog("エラー: " + err.message);
+      });
+
+      client.on("close", () => {
+        setStatus("切断", "disconnected");
+        addLog("接続が切断されました。");
+      });
+    }
+
+    function disconnectMqtt() {
+      if (client) {
+        client.end(true);
+        client = null;
+      }
+      setStatus("切断", "disconnected");
+      addLog("手動で切断しました。");
+    }
+
+    function updateDisplay(data) {
+      document.getElementById("temperature").textContent =
+        data.temperature ?? "--";
+
+      document.getElementById("humidity").textContent =
+        data.humidity ?? "--";
+
+      document.getElementById("distance").textContent =
+        data.distance_cm ?? "--";
+
+      document.getElementById("light").textContent =
+        data.light_raw ?? "--";
+
+      if (data.motion === 1) {
+        document.getElementById("motion").textContent = "あり";
+      } else if (data.motion === 0) {
+        document.getElementById("motion").textContent = "なし";
+      } else {
+        document.getElementById("motion").textContent = "--";
+      }
+
+      if (data.status) {
+        document.getElementById("alertStatus").textContent = data.status;
+      } else if (data.alert_temp || data.alert_object || data.alert_waste_light) {
+        document.getElementById("alertStatus").textContent = "注意";
+      } else {
+        document.getElementById("alertStatus").textContent = "通常";
+      }
+    }
+  </script>
+</body>
+</html>
