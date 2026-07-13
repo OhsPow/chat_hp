@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>研究室・部屋 温湿度 Viewer</title>
+
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f4f6f8;
+      color: #222;
+    }
+
+    header {
+      background: #1f3a5f;
+      color: white;
+      padding: 16px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    main {
+      padding: 16px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .panel {
+      background: white;
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      font-size: 16px;
+      padding: 10px;
+      border: 1px solid #bbb;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      width: 100%;
+      font-size: 18px;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      background: #1f6feb;
+      margin-top: 6px;
+    }
+
+    .status {
+      font-size: 18px;
+      font-weight: bold;
+      padding: 10px;
+      border-radius: 10px;
+      background: #eee;
+      text-align: center;
+    }
+
+    .connected {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .disconnected {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .room-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 12px;
+    }
+
+    .room-card {
+      border-radius: 14px;
+      padding: 14px;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+    }
+
+    .room-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .temp {
+      font-size: 30px;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .normal {
+      background: #ecfdf5;
+    }
+
+    .warm {
+      background: #fffbeb;
+    }
+
+    .hot {
+      background: #fff7ed;
+      border-color: #fdba74;
+    }
+
+    .danger {
+      background: #fee2e2;
+      border-color: #f87171;
+    }
+
+    .small {
+      font-size: 13px;
+      color: #555;
+      line-height: 1.5;
+    }
+
+    pre {
+      white-space: pre-wrap;
+      word-break: break-all;
+      background: #111827;
+      color: #e5e7eb;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>研究室・部屋 温湿度 Viewer</h1>
+  </header>
+
+  <main>
+    <section class="panel">
+      <label for="brokerUrl">Broker URL</label>
+      <input id="brokerUrl" value="wss://broker.emqx.io:8084/mqtt" />
+
+      <label for="topic">Subscribe topic</label>
+      <input id="topic" value="iot-practice/class04/rooms" />
+
+      <button onclick="connectMqtt()">接続する</button>
+
+      <p class="small">
+        スマホで使う場合は、Wi-FiをOFFにして4G/5G回線で開いてください。
+      </p>
+    </section>
+
+    <section class="panel">
+      <div id="status" class="status disconnected">未接続</div>
+    </section>
+
+    <section class="panel">
+      <h2>部屋別 最新温湿度</h2>
+      <div id="roomGrid" class="room-grid"></div>
+    </section>
+
+    <section class="panel">
+      <h2>最新JSON</h2>
+      <pre id="latestJson">まだ受信していません</pre>
+    </section>
+  </main>
+
+  <script>
+    let client = null;
+    const roomData = {};
+
+    function setStatus(text, className) {
+      const status = document.getElementById("status");
+      status.textContent = text;
+      status.className = "status " + className;
+    }
+
+    function connectMqtt() {
+      const brokerUrl = document.getElementById("brokerUrl").value.trim();
+      const topic = document.getElementById("topic").value.trim();
+
+      if (client) {
+        client.end(true);
+        client = null;
+      }
+
+      setStatus("接続中...", "disconnected");
+
+      const clientId =
+        "room-viewer-" + Math.random().toString(16).slice(2, 8);
+
+      client = mqtt.connect(brokerUrl, {
+        clientId: clientId,
+        clean: true,
+        connectTimeout: 8000,
+        reconnectPeriod: 3000
+      });
+
+      client.on("connect", () => {
+        setStatus("接続済み", "connected");
+
+        client.subscribe(topic, (err) => {
+          if (err) {
+            setStatus("subscribe失敗", "disconnected");
+          }
+        });
+      });
+
+      client.on("message", (topic, message) => {
+        const text = message.toString();
+        document.getElementById("latestJson").textContent = text;
+
+        try {
+          const data = JSON.parse(text);
+          updateRoomData(data);
+        } catch (e) {
+          console.log("JSON parse error", e);
+        }
+      });
+
+      client.on("close", () => {
+        setStatus("切断", "disconnected");
+      });
+
+      client.on("error", () => {
+        setStatus("エラー", "disconnected");
+      });
+    }
+
+    function getTemperatureClass(temp) {
+      if (temp >= 30) {
+        return "danger";
+      } else if (temp >= 28) {
+        return "hot";
+      } else if (temp >= 24) {
+        return "warm";
+      } else {
+        return "normal";
+      }
+    }
+
+    function updateRoomData(data) {
+      const roomId = data.room_id || "unknown_room";
+      const memberId = data.member_id || "unknown_member";
+      const key = roomId + "_" + memberId;
+
+      roomData[key] = {
+        room_id: roomId,
+        group_id: data.group_id || "--",
+        member_id: memberId,
+        temperature: data.temperature,
+        humidity: data.humidity,
+        received_at: new Date().toLocaleTimeString()
+      };
+
+      renderRooms();
+    }
+
+    function renderRooms() {
+      const grid = document.getElementById("roomGrid");
+      grid.innerHTML = "";
+
+      const items = Object.values(roomData).sort((a, b) => {
+        return a.room_id.localeCompare(b.room_id);
+      });
+
+      items.forEach((item) => {
+        const temp = Number(item.temperature);
+        const className = getTemperatureClass(temp);
+
+        const card = document.createElement("div");
+        card.className = "room-card " + className;
+
+        card.innerHTML = `
+          <div class="room-title">${item.room_id}</div>
+          <div class="temp">${item.temperature} ℃</div>
+          <div>湿度：${item.humidity} %</div>
+          <div class="small">group：${item.group_id}</div>
+          <div class="small">member：${item.member_id}</div>
+          <div class="small">受信：${item.received_at}</div>
+        `;
+
+        grid.appendChild(card);
+      });
+    }
+  </script>
+</body>
+</html>
